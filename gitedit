@@ -30,7 +30,7 @@ done
 # check out all the good files and edit them
 $git checkout -b local
 
-#$git pull origin master
+$git pull origin master
 $editor $goodfile;
 $git add $goodfile;
 read -p "Enter commit message here: " gitmsg

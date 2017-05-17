@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Title		    : gitedit
+# Description	: This will create and switch to local branch.
+#               Once in the local branch, it will do a git pull from remote master, then you can start editing the file.
+#               Once done, it will add the file and ask for what you have modified.  It will checkout the master branch,
+#               merge your local branch changes into master.  After that, it will remove the local branch and push all
+#               changes to BitBucket, GitHub or GitLab account.
+# Author	    : Brian Good
+
+git="/usr/bin/git"
+editor=/usr/bin/vim;
+goodfile=""
+
+# find files that exist and save them in an list
+for file in $@ ; do
+	if [ ! -e $file ]; then
+		echo "Couldn't find file '$file'";
+	else
+		$git diff $file > /dev/null;
+		if [ $? -eq 1 ];
+		then
+			echo "Warning -- '$file' contains non-commited changes. Please review file differences before proceeding.";
+			exit;
+		fi;
+		goodfile="$goodfile $file";
+	fi
+done
+
+# check out all the good files and edit them
+$git checkout -b local
+
+#$git pull origin master
+$editor $goodfile;
+$git add $goodfile;
+read -p "Enter commit message here: " gitmsg
+$git commit -m "$gitmsg"
+$git checkout master
+$git merge local
+$git branch -d local
+$git push origin master
